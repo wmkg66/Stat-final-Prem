@@ -1,0 +1,219 @@
+---
+title: "Final Project"
+author: "Abdulwahab Alghunaim"
+date: "2024-06-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(knitr)
+library(ggplot2)
+library(dplyr)
+library(readr)
+```
+```{r}
+library(tidyverse)
+library(knitr)
+library(ggplot2)
+library(dplyr)
+library(readr)
+
+# Data Intake with specified column types
+epl_2015_2016_data <- read_csv(
+  "C:/Users/Wahab/OneDrive/Desktop/Summer Stat/E15-16.csv", 
+  col_types = cols(
+    Date = col_character(),
+    HomeTeam = col_character(),
+    AwayTeam = col_character(),
+    FTHG = col_double(),
+    FTAG = col_double(),
+    FTR = col_character(),
+    HTHG = col_double(),
+    HTAG = col_double(),
+    HTR = col_character(),
+    Referee = col_character(),
+    HS = col_double(),
+    AS = col_double(),
+    HST = col_double(),
+    AST = col_double(),
+    HF = col_double(),
+    AF = col_double(),
+    HC = col_double(),
+    AC = col_double(),
+    HY = col_double(),
+    AY = col_double(),
+    HR = col_double(),
+    AR = col_double()
+  )
+)
+
+epl_2016_2017_data <- read_csv(
+  "C:/Users/Wahab/OneDrive/Desktop/Summer Stat/E16-17.csv", 
+  col_types = cols(
+    Date = col_character(),
+    HomeTeam = col_character(),
+    AwayTeam = col_character(),
+    FTHG = col_double(),
+    FTAG = col_double(),
+    FTR = col_character(),
+    HTHG = col_double(),
+    HTAG = col_double(),
+    HTR = col_character(),
+    Referee = col_character(),
+    HS = col_double(),
+    AS = col_double(),
+    HST = col_double(),
+    AST = col_double(),
+    HF = col_double(),
+    AF = col_double(),
+    HC = col_double(),
+    AC = col_double(),
+    HY = col_double(),
+    AY = col_double(),
+    HR = col_double(),
+    AR = col_double()
+  )
+)
+```
+
+
+
+```{r}
+print(head(epl_2015_2016_data))
+print(head(epl_2016_2017_data))
+```
+
+
+```{r}
+print(names(epl_2015_2016_data))
+print(names(epl_2016_2017_data))
+```
+```{r}
+if (!"HomeTeam" %in% names(epl_2015_2016_data)) {
+  stop("Column 'HomeTeam' not found in epl_2015_2016_data")
+}
+if (!"HomeTeam" %in% names(epl_2016_2017_data)) {
+  stop("Column 'HomeTeam' not found in epl_2016_2017_data")
+}
+```
+```{r}
+epl_2015_2016_data$HomeTeam <- as.character(epl_2015_2016_data$HomeTeam)
+epl_2016_2017_data$HomeTeam <- as.character(epl_2016_2017_data$HomeTeam)
+```
+```{r}
+epl_2015_2016_data$HomeTeam <- str_trim(epl_2015_2016_data$HomeTeam)
+epl_2016_2017_data$HomeTeam <- str_trim(epl_2016_2017_data$HomeTeam)
+```
+```{r}
+joined_data <- inner_join(epl_2015_2016_data, epl_2016_2017_data, by = "HomeTeam")
+```
+```{r}
+print(head(joined_data))
+```
+```{r}
+pivoted_data <- joined_data %>%
+  pivot_longer(cols = -c(HomeTeam, Date.x, Date.y, Referee.x, Referee.y, AwayTeam.x, AwayTeam.y, FTR.x, FTR.y, HTR.x, HTR.y), 
+               names_to = "stat", values_to = "value")
+```
+```{r}
+cleaned_data <- joined_data %>%
+  mutate(HomeTeam_clean = str_replace_all(HomeTeam, "[^[:alnum:] ]", ""))
+```
+
+```{r}
+print(cleaned_data)
+```
+```{r}
+#Distribution of Home Team Fouls by Match Outcome of 2015-16 season
+
+ggplot(epl_2015_2016_data, aes(x = HF, fill = FTR)) +
+  geom_histogram(binwidth = 1, position = "dodge") +
+  labs(
+    title = "Distribution of Home Team Fouls by Match Outcome",
+    x = "Number of Home Team Fouls",
+    y = "Count",
+    fill = "Full-Time Result"
+  )
+```
+
+
+
+
+
+```{r}
+#Distribution of Home Team Fouls by Match Outcome of 2016-17 season
+ggplot(epl_2016_2017_data, aes(x = HF, fill = FTR)) +
+  geom_boxplot(position = "dodge") +
+  labs(
+    title = "Distribution of Home Team Fouls by Match Outcome",
+    x = "Number of Home Team Fouls",
+    y = "Count",
+    fill = "Full-Time Result"
+  )
+```
+```{r}
+#Home Team Fouls vs. Full-Time Home Goals for the 2015-16 season
+ggplot(epl_2015_2016_data, aes(x = HF, y = FTHG, color = FTR)) +
+  geom_point() +
+  labs(
+    title = "Home Team Fouls vs. Full-Time Home Goals",
+    x = "Home Team Fouls",
+    y = "Full-Time Home Goals",
+    color = "Full-Time Result"
+  )
+```
+```{r}
+#Home Team Fouls vs. Full-Time Home Goals for the 2016-17 season
+ggplot(epl_2016_2017_data, aes(x = HF, y = FTHG, color = FTR)) +
+  geom_point() +
+  labs(
+    title = "Home Team Fouls vs. Full-Time Home Goals",
+    x = "Home Team Fouls",
+    y = "Full-Time Home Goals",
+    color = "Full-Time Result"
+  )
+```
+```{r}
+#Home Team Fouls vs. Full-Time Away Goals for the 2015-16 season
+ggplot(epl_2015_2016_data, aes(x = HF, y = FTAG, color = FTR)) +
+  geom_point() +
+  labs(
+    title = "Home Team Fouls vs. Full-Time Away Goals",
+    x = "Home Team Fouls",
+    y = "Full-Time Away Goals",
+    color = "Full-Time Result"
+  )
+```
+```{r}
+#Home Team Fouls vs. Full-Time Away Goals for the 2016-17 season
+ggplot(epl_2016_2017_data, aes(x = HF, y = FTAG, color = FTR)) +
+  geom_point() +
+  labs(
+    title = "Home Team Fouls vs. Full-Time Away Goals",
+    x = "Home Team Fouls",
+    y = "Full-Time Away Goals",
+    color = "Full-Time Result"
+  )
+```
+#Conlusion:
+#Distribution of Home Team Fouls by Match Outcome:
+  
+    We can see that matches that have a 10-15 range of fouls are most common regardless of the outcome, but matches with the same range of fouls are also common with Home wins, however, the density of matches where the home team wins appears slightly higher within this foul range compared to draws or away team wins.
+
+    Home Team Fouls vs. Full-Time Home Goals:
+        We can see that matches in the 10-15 foul range are most common, but matches with either 5 or less or more than 20 fouls have a broader range of goals scorred, either being greater or less goals.
+
+    Home Team Fouls vs. Full-Time Away Goals:
+      We can see that higher away team goals of 3 or greater seem to be more spread out across various foul counts. The distribution shows that the number of home team fouls might not have a strong correlation with the away team's scoring.
+
+    Observations:
+     The data suggests that committing 10-15 fouls does not prevent the home team from winning. This shows that fouls may not have a straightforward negative impact on the home team's performance.
+    Scoring Patterns: The clustering of higher home team goals in matches with 10-15 fouls suggests that within a certain range, foulsmight not be an indictation of more scoring opportunities.
+    No Impact on Away Team Goals: The data does not show a clear pattern between home team fouls and away team goals, indicating that fouls committed by the home team might not  benefit the away team in terms of scoring.
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
